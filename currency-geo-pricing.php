@@ -11,19 +11,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * Optional UAH->foreign fallback rates. If a product has no price set in the
- * target currency, its UAH price is divided by the matching rate to produce a
- * figure. Set to 0 to disable (the product then shows its raw UAH number under
- * the foreign symbol). Both can also be defined in wp-config.php.
- */
-if ( ! defined( 'EURGEO_UAH_PER_EUR' ) ) {
-	define( 'EURGEO_UAH_PER_EUR', 0 );
-}
-if ( ! defined( 'EURGEO_UAH_PER_USD' ) ) {
-	define( 'EURGEO_UAH_PER_USD', 0 );
-}
-
 /* -------------------------------------------------------------------------
  * 1. Visitor country detection + target currency (memoized per request).
  * ---------------------------------------------------------------------- */
@@ -197,11 +184,13 @@ add_action( 'woocommerce_save_product_variation', function ( $variation_id, $i )
  * 4. Swap regular + sale price for the visitor's currency (display, cart, totals).
  * ---------------------------------------------------------------------- */
 
-// Meta keys + fallback rate for a given target currency.
+// Meta keys + fallback rate for a given target currency. The rate is the
+// optional UAH->foreign figure set under WooCommerce > Settings > General;
+// 0 (default) disables the fallback.
 function cgp_currency_map( $currency ) {
 	$map = array(
-		'EUR' => array( 'regular' => '_price_eur', 'sale' => '_sale_price_eur', 'rate' => (float) EURGEO_UAH_PER_EUR ),
-		'USD' => array( 'regular' => '_price_usd', 'sale' => '_sale_price_usd', 'rate' => (float) EURGEO_UAH_PER_USD ),
+		'EUR' => array( 'regular' => '_price_eur', 'sale' => '_sale_price_eur', 'rate' => (float) get_option( 'eurgeo_uah_per_eur', 0 ) ),
+		'USD' => array( 'regular' => '_price_usd', 'sale' => '_sale_price_usd', 'rate' => (float) get_option( 'eurgeo_uah_per_usd', 0 ) ),
 	);
 	return isset( $map[ $currency ] ) ? $map[ $currency ] : null;
 }
@@ -351,6 +340,24 @@ add_filter( 'woocommerce_get_settings_general', function ( $settings ) {
 			'type'          => 'checkbox',
 			'default'       => 'yes',
 			'checkboxgroup' => 'end',
+		),
+		array(
+			'title'             => __( 'UAH per 1 EUR', 'eurgeo' ),
+			'desc'              => __( 'Optional fallback rate. When a product has no EUR price, its UAH price is divided by this number. Set to 0 to disable (the raw UAH number is then shown under €).', 'eurgeo' ),
+			'id'                => 'eurgeo_uah_per_eur',
+			'type'              => 'number',
+			'default'           => '0',
+			'desc_tip'          => true,
+			'custom_attributes' => array( 'min' => '0', 'step' => '0.0001' ),
+		),
+		array(
+			'title'             => __( 'UAH per 1 USD', 'eurgeo' ),
+			'desc'              => __( 'Optional fallback rate. When a product has no USD price, its UAH price is divided by this number. Set to 0 to disable (the raw UAH number is then shown under $).', 'eurgeo' ),
+			'id'                => 'eurgeo_uah_per_usd',
+			'type'              => 'number',
+			'default'           => '0',
+			'desc_tip'          => true,
+			'custom_attributes' => array( 'min' => '0', 'step' => '0.0001' ),
 		),
 		array(
 			'type' => 'sectionend',

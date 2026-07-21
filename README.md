@@ -74,14 +74,14 @@ If a product has no price set for the visitor's currency, it falls back to the o
 
 ## Optional fallback conversion rates
 
-If you don't want to enter every EUR/USD price by hand, you can define static **UAH → foreign** rates. When a target-currency price is missing, the UAH price is divided by the matching rate to produce a figure.
+If you don't want to enter every EUR/USD price by hand, you can set static **UAH → foreign** rates. When a target-currency price is missing, the UAH price is divided by the matching rate to produce a figure.
 
-Set them in `wp-config.php`:
+Set them under **WooCommerce → Settings → General** in the **Currency geo pricing** section:
 
-```php
-define( 'EURGEO_UAH_PER_EUR', 45 ); // 1 EUR = 45 UAH
-define( 'EURGEO_UAH_PER_USD', 41 ); // 1 USD = 41 UAH
-```
+- **UAH per 1 EUR** (`eurgeo_uah_per_eur`) — e.g. `45` means 1 EUR = 45 UAH.
+- **UAH per 1 USD** (`eurgeo_uah_per_usd`) — e.g. `41` means 1 USD = 41 UAH.
+
+Notes:
 
 - Default is `0`, which **disables** the fallback (the product then shows its raw UAH number under the foreign symbol).
 - Explicit per-product EUR/USD prices always take priority over these rates.
@@ -95,6 +95,7 @@ Under **WooCommerce → Settings → General** a **Currency geo pricing** sectio
   - **UAH — Ukraine** — always on, cannot be switched off.
   - **EUR — Europe** (`eurgeo_eur_enabled`) — when off, European visitors fall back to UAH.
   - **USD — rest of the world** (`eurgeo_usd_enabled`) — when off, those visitors fall back to UAH.
+- **UAH per 1 EUR** (`eurgeo_uah_per_eur`) and **UAH per 1 USD** (`eurgeo_uah_per_usd`) — optional fallback conversion rates (see below); `0` disables them.
 
 ## Customizing the EUR country list
 
